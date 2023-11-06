@@ -1,9 +1,9 @@
 import Mock from "mockjs";
 
 //模拟网络延时
-// Mock.setup({
-//     timeout: 500
-// })
+ Mock.setup({
+     timeout: 500
+ })
 
 //登录验证 成功需要返回token跟name（前端会存在浏览器本地存储里面，除了登录请求外每次发送请求请求头都会携带token）
 Mock.mock("http://localhost:8080/user/login", "post", (res) => {
