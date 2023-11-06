@@ -3,7 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer:{
     hosts:"localhost",
-    port:8081,
+    port:8080,
     historyApiFallback:true,
     allowedHost:"all"
   }
