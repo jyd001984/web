@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import routes from "./routeMap"
+import routes from "./staticMap"
 
 Vue.use(VueRouter)
 

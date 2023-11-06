@@ -1,12 +1,11 @@
-export function setToken(token){
-    sessionStorage.setItem("token",token)
-}
-
 export function getToken(){
-    return sessionStorage.getItem("token")
+    return sessionStorage.getItem("accessToken")
 }
 
-export function removeToken(){
+export function setToken(accessToken){
+    sessionStorage.setItem("accessToken",accessToken)
+}
+
+export function clearToken(){
     sessionStorage.clear()
 }
-

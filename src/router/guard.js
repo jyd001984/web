@@ -1,9 +1,8 @@
-import router from "./index"
+import router from "./index";
 import {getToken} from "@/utils/auth"
 
 router.beforeEach((to,from,next)=>{
-    const token=getToken();
-    if(token){
+    if(getToken()){
         if(to.path=="/login"){
             next("/")
         }else{

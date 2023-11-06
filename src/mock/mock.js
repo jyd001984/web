@@ -1,229 +1,423 @@
 import Mock from "mockjs";
-//模拟网络请求延时
-Mock.setup({
-    timeout:500
-})
-//登录接口
-Mock.mock("http://localhost:8080/login","post",(req)=>{
-    //请求对象
-   const {username,password} = JSON.parse(req.body);
-   //根据用户名和密码查询数据库,查询出数据返回给前端
-    if(username=="user"&&password==123456){
-        return{
-            code:200,
-            success:true,
-            message:"登陆成功",
-            token:"3arc9h0vhcr0f8iprpnscmfo8s",
-            nickname:"赵铁柱"
+
+//模拟网络延时
+// Mock.setup({
+//     timeout: 500
+// })
+
+//登录验证 成功需要返回token跟name（前端会存在浏览器本地存储里面，除了登录请求外每次发送请求请求头都会携带token）
+Mock.mock("https://localhost:8080/user/login", "post", (res) => {
+    const body = JSON.parse(res.body)
+    if (body.userid === "user" && body.password === "123456") {
+        return {
+            success: true,
+            message: "登录成功",
+            accessToken: "3arc9h0vhcr0f8iprpnscmfo8s",
+            userid: "user",
+            username:"张三",
+            op:"order",
+            accessTokenAge:"2023-11-30",
+            refreshToken:"dasdawfaw",
+            refreshTokenAge:"2023-11-31"
         }
-    }else{
-          return{
-            code:100,
-            success:false,
-            message:"账号或者密码有误"
-          }  
+    } else {
+        return {
+            success: false,
+            message: "账号或密码有误"
+        }
     }
 })
-//入职日期接口
-Mock.mock("http://localhost:8080/in","get",()=>{
-    return{
-            code:200,
-            success:true,
-            message:"请求成功",
-            time:"2022-07-01 00:00:00"
+
+// //导航菜单栏 根据账号密码返回对应的菜单栏
+// //注意:需要返回url（前端定义的路由，可以直接绑定点击事件）,icon（图标，地址在https://element.eleme.io/#/zh-CN/component/icon）
+// Mock.mock("https://localhost:8080/menu", "post", () => {
+//     return {
+//         code: 200,
+//         success: true,
+//         message: "请求成功",
+//         data: [
+//             {
+//                 name: "首页",
+//                 url: "/home",
+//                 icon: "el-icon-s-home"
+//             },
+//             {
+//                 name: "预约管理",
+//                 url: "/bookmage",
+//                 icon: "el-icon-phone"
+//             },
+//             {
+//                 name: "前台收银",
+//                 url: "/frontdesk",
+//                 icon: "el-icon-bank-card"
+//             },
+//             {
+//                 name: "场地管理",
+//                 url: "/sitemage",
+//                 icon: "el-icon-film",
+//                 //此为二级导航栏
+//                 children: [
+//                     {
+//                         name: "场地详情",
+//                         url: "/sitemage/detail",
+//                         icon: "el-icon-document"
+//                     },
+//                     {
+//                         name: "计费规则",
+//                         url: "/sitemage/rule",
+//                         icon: "el-icon-money"
+//                     }
+//                 ]
+//             },
+//             {
+//                 name: "个人中心",
+//                 icon: "el-icon-user-solid",
+//                 url: "percen",
+//                 children: [
+//                     {
+//                         name: "个人中心",
+//                         url: "/percen/index",
+//                         icon: "el-icon-user-solid"
+//                     },
+//                     {
+//                         name: "修改密码",
+//                         url: "/percen/psw",
+//                         icon: "el-icon-warning-outline"
+//                     },
+//                 ]
+//             },
+//             //此为管理员权限,根据身份验证返回
+//             {
+//                 name: "管理员",
+//                 url: "/manage/user",
+//                 icon: "el-icon-s-custom"
+//             }
+//         ]
+//     }
+// })
+
+//获取首页视图数据 参数是多少意味着返回多少条数据
+Mock.mock("https://localhost:8080/homedata", "post", ({ body }) => {
+    if (body == 7) {
+        return {
+            code: 200,
+            success: true,
+            message: "请求成功",
+            data: [10, 50, 60, 90, 770, 660, 30]
+        }
+    } else if (body == 14) {
+        return {
+            code: 200,
+            success: true,
+            message: "请求成功",
+            data: [10, 50, 60, 90, 770, 660, 30, 6, 99, 663, 160, 264, 26, 999,]
+        }
+    } else {
+        return {
+            code: 200,
+            success: true,
+            message: "请求成功",
+            data: [10, 50, 60, 90, 770, 660, 30, 999, 1, 92, 646, 3116, 313, 600, 264, 1, 613, 61, 64, 976, 161, 631, 460, 4, 62, 64, 2, 0, 61]
+        }
     }
 })
-//菜单接口
-const menuList = [
-    {
-        name: "首页",
-        icon: "el-icon-s-home",
-        url: "/index",
-    },
-    {
-        name: "订单管理",
-        icon: "el-icon-s-order",
-        url: "/order",
-        children: [
-            {
-                name: "订单列表",
-                icon: "el-icon-user",
-                url: "/orders/list",
-            }
-        ]
-    },
-    {
-        name: "运单管理",
-        icon: "el-icon-menu",
-        url: "/waybill",
-        children: [
-            {
-                name: "运单录入",
-                icon: "el-icon-notebook-2",
-                url: "/waybill/in",
-            },
-            {
-                name: "运单列表",
-                icon: "el-icon-truck",
-                url: "/waybill/list",
-            }
-        ]
-    },
-    {
-        name: "发车管理",
-        icon: "el-icon-s-order",
-        url: "/depart",
-        children: [
-            {
-                name: "发车数据单",
-                icon: "el-icon-tickets",
-                url: "/depart/data",
-            }
-        ]
-    },
-    {
-        name: "承运商管理",
-        icon: "el-icon-user",
-        url: "/carrier",
-        children: [
-            {
-                name: "承运商列表",
-                icon: "el-icon-chat-square",
-                url: "/carrier/list",
-            },
-            {
-                name: "车辆列表",
-                icon: "el-icon-bank-card",
-                url: "/carrier/trucks",
-            },
-            {
-                name: "承运司机列表",
-                icon: "el-icon-bank-card",
-                url: "/carrier/list",
-            },
-        ]
-    },
-    {
-        name: "客户管理",
-        icon: "el-icon-chat-dot-square",
-        url: "/customer",
-    },
-    {
-        name: "财务管理",
-        icon: "el-icon-user",
-        url: "/my",
-        children: [
-            {
-                name: "客户对账单",
-                icon: "el-icon-chat-square",
-                url: "/customer/info",
-            },
-            {
-                name: "承运商对账单",
-                icon: "el-icon-bank-card",
-                url: "/record",
-            },
-            {
-                name: "承运司机列表",
-                icon: "el-icon-bank-card",
-                url: "/record",
-            },
-        ]
-    },
-    {
-        name: "个人中心",
-        icon: "el-icon-chat-dot-square",
-        url: "/personal",
-    },
-]
-Mock.mock("http://localhost:8080/menu","get",()=>{
-    return{
-        code:200,
-        success:true,
-        message:"请求成功",
-        data:menuList
-    }
-})
-//折线图图表接口
-Mock.mock("http://localhost:8080/line","get",()=>{
-    return{
-        code:200,
-        success:true,
-        message:"请求成功",
-        data:{
-            "22-01":30,
-            "22-02":84,
-            "22-03":56,
-            "22-04":47,
-            "22-05":84,
-            "22-06":61,
-            "22-07":90,
-        } 
-    }
-})
-//订单管理-订单列表
-Mock.mock('http://localhost:8080/orderList', 'post', (req) => {
-    const { page, pageSize,keyword } = JSON.parse(req.body);
-    console.log("接口接收到参数:",page,pageSize,keyword)
+
+//获取各时段预约量
+Mock.mock("https://localhost:8080/reser", "post", () => {
     return {
         code: 200,
         success: true,
-        message: "成功",
-        data: Mock.mock({
-            [`list|${pageSize}`]: [{
-                'id|+1': 10000,//订单号
-                'status|1': [1,2,3,4],//订单状态 1待审核 2已审核 3审核通过 4审核拒绝
-                'date': Mock.Random.date(),//下单时间
-                'name|1': ["诺来科技有限公司","辉华股份有限公司","川聚物流有限公司","成越材料有限公司","聚博纺织有限公司"],//客户名称
-                'start': Mock.Random.city(true),//起始城市
-                'end': Mock.Random.city(true),//目的城市,
-                'cargo|1': ["日用品","纺织品","生鲜","建材","电器"],//货物名称
-                'count': Mock.Random.integer(10, 200),//件数
-                'unit|1': ["方","吨"],//单位
-                "price":Mock.Random.integer(5000,50000),//运费
-                "from|1":["移动端","pc端"],
-                "pay|1":[1,2],//是否支付 1 已支付 2未支付     
-            }],
-            "total": 47
-        })
+        message: "请求成功",
+        data: [114, 222, 20, 41, 100, 23, 54, 66]
     }
 })
-//订单管理-新建订单
-Mock.mock('http://localhost:8080/addOrder',"post",(req)=>{
-    const  {name,start,end,cargo,count,unit,price,from,pay} =JSON.parse(req.body);
-    console.log("新建订单接口收到参数:",name,start,end,cargo,count,unit,price,from,pay)
-    return{
-        code:200,
-        success:true,
-        message:"新建成功", 
-    }
-})
-//运单管理-运单列表
-Mock.mock('http://localhost:8080/waybillList', 'post', (req) => {
-     const { page, pageSize,waybillNo,name,startDate,endDate,status } = JSON.parse(req.body);
-     console.log("服务端接收到参数",page, pageSize,waybillNo,name,startDate,endDate,status)
+
+//获取公告栏数据
+Mock.mock("https://localhost:8080/home/notice","post",()=>{
     return {
         code: 200,
         success: true,
-        message: "成功",
+        message: "请求成功",
+        data:Mock.mock({
+            [`list|${5}`]:[{
+                'date':Mock.Random.time("yyyy/MM/dd"),
+                'title|1':['更新内容通知','关于管理方案','收费规则说明','其他说明'],
+                'content|+1':1000
+            }]
+        })
+    }
+})
+
+//获取预约管理订单
+Mock.mock("https://localhost:8080/bookmage", "post", (res) => {
+    const { pageSize, currentPage } = JSON.parse(res.body);
+    console.log("返回数据量：" + pageSize + "当前页码：" + currentPage)
+    return {
+        code: 200,
+        success: true,
+        message: "请求成功",
         data: Mock.mock({
             [`list|${pageSize}`]: [{
-                'no|+1': 10000,//订单号
-                'date': Mock.Random.date(),//下单时间
-                'name|1': ["诺来科技有限公司","辉华股份有限公司","川聚物流有限公司","成越材料有限公司","聚博纺织有限公司"],//客户名称
-                'cargo': ["日用品","纺织品","生鲜","建材","电器"],//货物名称
-                'count': Mock.Random.integer(10, 200),//件数
-                'start': Mock.Random.city(true),//起始城市
-                'end': Mock.Random.city(true),//目的城市,
-                "price":Mock.Random.integer(5000,50000),//运费
-                "needRecive|1":[1,2],//需要接货 1需要 2不需要
-                'plateNumber|1': ["京A12345","苏C66666","鲁B45678"],//车牌号
-                 "driver":Mock.Random.cname(),
-                 "tel|1":[18888888888,15577896554,15789654785,13698745269],
-                 "percent|1":[37,22,89,65,80,74,56]
-   
+                'order|+1': 1001,
+                'date|1': ["2022-1-1", "2023-5-5", "2024-6-6"],
+                'time': Mock.Random.time("HH:mm") + ' ~ ' + Mock.Random.time("HH:mm"),
+                'name': Mock.Random.name(),
+                'cellphone': "1369546361",
+                'area|1': ["区域1", "区域2", "区域3"],
+                'address|1': ["场地1", "场地2", "场地3"],
             }],
-            "total": 47
+            total: 300
         })
+    }
+})
+
+//获取区域场地信息
+Mock.mock("https://localhost:8080/sitedetail", "post", () => {
+    return {
+        code: 200,
+        success: true,
+        message: "请求成功",
+        data: [
+            {
+                area: "区域一",
+                addtail: [
+                    {
+                        address: "场地一",
+                        status: 2, //1为运营中，2位停运中
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地二",
+                        status: 2,
+                        sport: 2, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地三",
+                        status: 2,
+                        sport: 3, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地四",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                ],
+            }, {
+                area: "区域二",
+                areastatus: 12, //1为运营中，2为停运中
+                addtail: [
+                    {
+                        address: "场地一",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地二",
+                        status: 1,
+                        sport: 2, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地三",
+                        status: 1,
+                        sport: 3, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地四",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                ],
+            }, {
+                area: "区域三",
+                areastatus: 1, //1为运营中，2为停运中
+                addtail: [
+                    {
+                        address: "场地一",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地二",
+                        status: 1,
+                        sport: 2, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地三",
+                        status: 1,
+                        sport: 3, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地四",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                ],
+            }, {
+                area: "区域四",
+                areastatus: 12, //1为运营中，2为停运中
+                addtail: [
+                    {
+                        address: "场地一",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地二",
+                        status: 1,
+                        sport: 2, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地三",
+                        status: 1,
+                        sport: 3, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                    {
+                        address: "场地四",
+                        status: 2,
+                        sport: 1, //1为乒乓球，2为羽毛球，3为桌球
+                        court: "XX球场",
+                    },
+                ],
+            }
+        ]
+    }
+})
+
+//获取计费规则
+Mock.mock("https://localhost:8080/siterule", "post", () => {
+    return {
+        code: 200,
+        success: true,
+        message: "请求成功",
+        data: [
+            {
+                sport: "区域一/场地二/乒乓球",
+                fit: "8元",
+                member: "6元",
+            },
+            {
+                sport: "区域一/场地二/羽毛球",
+                fit: "8元",
+                member: "6元",
+            },
+            {
+                sport: "区域一/场地二/排球",
+                fit: "8元",
+                member: "6元",
+            },
+            {
+                sport: "区域一/场地二/桌球",
+                fit: "8元",
+                member: "6元",
+            },
+            {
+                sport: "区域一/场地二/毽子",
+                fit: "8元",
+                member: "6元",
+            },
+            {
+                sport: "区域一/场地二/射击",
+                fit: "8元",
+                member: "6元",
+            },
+        ]
+    }
+})
+
+//获取运动类型占比图雷达图
+Mock.mock("https://localhost:8080/manage/radar", "post", () => {
+    let allsprotdata = 500
+    return {
+        code: 200,
+        success: true,
+        message: "请求成功",
+        data: {
+            indicator: [
+                {
+                    name: '羽毛球', max: allsprotdata
+                },
+                {
+                    name: '乒乓球', max: allsprotdata
+                },
+                {
+                    name: '排球', max: allsprotdata
+                },
+                {
+                    name: '桌球', max: allsprotdata
+                },
+                {
+                    name: '棒球', max: allsprotdata
+                },
+            ],
+            name: ["各运动类型场地数量占比", "各运动类型场地使用量"],
+            datavalue: [
+                {
+                    value: [60, 200, 30, 100, 110],
+                    name: "各运动类型场地数量占比"
+                },
+                {
+                    value: [200, 300, 400, 30, 100],
+                    name: "各运动类型场地使用量"
+                }
+            ]
+        }
+    }
+})
+
+//获取场地使用总时长柱状图
+
+//获取加盟球馆数据
+
+//获取前台收银数据
+Mock.mock("https://localhost:8080/frontdest/index", "post", () => {
+    return {
+        code: 200,
+        success: true,
+        message: "请求成功",
+        data: Mock.mock({
+            [`list|${20}`]: [{
+                'order|+1': 1000,
+                'area|1': ["区域1", "区域2", "区域3"],
+                'site|1': ["场地1", "场地2", "场地3"],
+                "status|1": [1, 2],
+                reserve: Mock.Random.time("HH:mm")+'~'+Mock.Random.time("HH:mm"),
+                "timer|1":[`1h`,`2h`,`3h`,`4h`],
+                custom: Mock.Random.name(),
+            }],
+        })
+    }
+})
+
+Mock.mock("https://localhost:8080/user/changePassword", "post",()=>{
+    return{
+        success:true
+    }
+})
+
+Mock.mock("https://localhost:8080/user/rename", "post",()=>{
+    return{
+        success:true
+    }
+})
+
+Mock.mock("https://localhost:8080/user/newOrder", "post",(res)=>{
+    console.log(res)
+    return{
+        success:true
     }
 })

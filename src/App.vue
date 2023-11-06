@@ -6,6 +6,11 @@
 
 <script>
 export default {
+  created(){
+    if(this.$router.path!="/"){
+      this.$router.replace("/")
+    }
+  }
 }
 </script>
 
